@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KodeKita — Share Code Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #0f0f23 100%); min-height: 100vh; }
+    .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); }
+    .input { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .input:focus { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3); }
+    .btn { transition: all 0.4s; }
+    .btn:hover { transform: translateY(-6px); box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+    .fade-in { animation: fadeIn 1s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden { display: none; }
+  </style>
+</head>
+<body class="flex items-center justify-center p-6">
+
+  <!-- AUTH -->
+  <div id="auth" class="glass p-12 rounded-3xl shadow-2xl max-w-md w-full fade-in">
+    <div class="text-center mb-10">
+      <h1 class="text-5xl font-bold text-white mb-3">KodeKita</h1>
+      <p class="text-white/70">Share code dengan folder sendiri di GitHub</p>
+    </div>
+
+    <div class="flex gap-3 mb-8">
+      <button onclick="showLogin()" id="tabLogin" class="flex-1 py-4 rounded-2xl bg-white/20 text-white font-semibold">Login</button>
+      <button onclick="showRegister()" id="tabRegister" class="flex-1 py-4 rounded-2xl bg-white/10 text-white/70 font-semibold">Daftar</button>
+    </div>
+
+    <!-- Register -->
+    <form id="registerForm" class="space-y-5">
+      <input type="email" id="regEmail" placeholder="Email" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <input type="text" id="regUsername" placeholder="Username" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <input type="password" id="regPassword" placeholder="Password" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <input type="password" id="regConfirm" placeholder="Konfirmasi Password" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <button type="submit" class="w-full py-5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-2xl font-bold text-xl btn">Daftar</button>
+    </form>
+
+    <!-- Login -->
+    <form id="loginForm" class="hidden space-y-5">
+      <input type="text" id="loginId" placeholder="Username atau Email" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <input type="password" id="loginPass" placeholder="Password" required class="w-full p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <button type="submit" class="w-full py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-bold text-xl btn">Login</button>
+    </form>
+
+    <p id="msg" class="text-center mt-6 text-yellow-300 font-medium"></p>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editor" class="hidden glass p-12 rounded-3xl shadow-2xl max-w-5xl w-full fade-in">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-4xl font-bold text-white">Upload Code Baru</h2>
+        <p class="text-white/70">Halo, <span id="userName" class="font-bold text-cyan-300"></span>!</p>
+      </div>
+      <button onclick="logout()" class="text-white/70 hover:text-red-400 text-2xl"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <input type="text" id="projectName" placeholder="Nama Project (contoh: game-tictactoe)" class="p-5 rounded-2xl glass text-white placeholder-white/50 input" />
+      <select id="lang" class="p-5 rounded-2xl glass text-white input">
+        <option value="js">JavaScript</option>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="py">Python</option>
+        <option value="other">Lainnya</option>
+      </select>
+    </div>
+
+    <textarea id="codeInput" placeholder="Tulis code di sini..." class="w-full p-6 rounded-2xl glass text-white placeholder-white/40 input" style="height: 420px; resize: vertical; font-family: 'JetBrains Mono', monospace;"></textarea>
+
+    <button onclick="upload()" class="mt-8 w-full py-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-bold text-2xl btn">
+      Upload & Dapatkan Link
+    </button>
+
+    <div id="result" class="hidden mt-10 p-8 bg-white/10 rounded-2xl text-center">
+      <p class="text-2xl text-cyan-300 font-bold mb-4">Upload Berhasil!</p>
+      <a id="viewBtn" target="_blank" class="text-3xl text-white underline hover:text-cyan-300"></a>
+      <p class="text-white/70 mt-4 break-all text-sm">Raw: <span id="rawUrl"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+      $('userName').textContent = username;
+      $('auth').classList.add('hidden');
+      $('editor').classList.remove('hidden');
+    }
+
+    function showLogin() {
+      $('tabLogin').classList.add('bg-white/20', 'text-white');
+      $('tabLogin').classList.remove('bg-white/10', 'text-white/70');
+      $('tabRegister').classList.remove('bg-white/20', 'text-white');
+      $('tabRegister').classList.add('bg-white/10', 'text-white/70');
+      $('loginForm').classList.remove('hidden');
+      $('registerForm').classList.add('hidden');
+    }
+
+    function showRegister() {
+      $('tabRegister').classList.add('bg-white/20', 'text-white');
+      $('tabRegister').classList.remove('bg-white/10', 'text-white/70');
+      $('tabLogin').classList.remove('bg-white/20', 'text-white');
+      $('tabLogin').classList.add('bg-white/10', 'text-white/70');
+      $('registerForm').classList.remove('hidden');
+      $('loginForm').classList.add('hidden');
+    }
+
+    $('registerForm').onsubmit = async e => {
+      e.preventDefault();
+      const data = {
+        email: $('regEmail').value,
+        username: $('regUsername').value,
+        password: $('regPassword').value,
+        confirm: $('regConfirm').value
+      };
+      const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      const json = await res.json();
+      $('msg').textContent = json.message || json.error;
+      if (res.ok) setTimeout(showLogin, 1500);
+    };
+
+    $('loginForm').onsubmit = async e => {
+      e.preventDefault();
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: $('loginId').value, password: $('loginPass').value })
+      });
+      const json = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', json.token);
+        localStorage.setItem('username', json.username);
+        location.reload();
+      } else {
+        $('msg').textContent = json.error;
+      }
+    };
+
+    async function upload() {
+      const projectName = $('projectName').value.trim();
+      const language = $('lang').value;
+      const code = $('codeInput').value;
+      if (!projectName || !code) return alert('Isi semua field!');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('token') },
+        body: JSON.stringify({ projectName, language, code })
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        $('viewBtn').href = json.viewUrl;
+        $('viewBtn').textContent = `Buka Project: ${projectName}`;
+        $('rawUrl').textContent = json.rawUrl;
+        $('result').classList.remove('hidden');
+        $('projectName').value = '';
+        $('codeInput').value = '';
+      } else {
+        alert(json.error);
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+  </script>
+</body>
+</html>
