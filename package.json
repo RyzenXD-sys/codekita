@@ -1,0 +1,33 @@
+{
+  "name": "kodekita",
+  "version": "1.0.0",
+  "description": "Share code dengan folder project sendiri",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "latest",
+    "@vercel/analytics": "latest",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "latest",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "lucide-react": "^0.454.0",
+    "next": "16.0.7",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "postcss": "^8.5",
+    "tailwindcss": "4.1.17",
+    "typescript": "^5"
+  }
+}
