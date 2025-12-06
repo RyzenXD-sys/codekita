@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Code - KodeKita</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <style>
+    body { background: #0d1117; color: #c9d1d9; font-family: 'JetBrains Mono', monospace; }
+    pre code { font-size: 15px; line-height: 1.6; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  <div class="bg-gray-900 p-10 rounded-3xl shadow-2xl max-w-5xl w-full">
+    <h1 class="text-4xl font-bold text-cyan-400 mb-8 text-center">KodeKita — View Code</h1>
+    <pre><code id="code" class="rounded-xl"></code></pre>
+    <div class="text-center mt-8">
+      <a href="/" class="text-cyan-400 hover:underline text-xl">Kembali ke Editor</a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const project = params.get('project');
+    const ext = params.get('ext') || 'js';
+    
+    const url = `/api/view?project=${project}&ext=${ext}`;
+
+    fetch(url)
+      .then(r => r.text())
+      .then(code => {
+        document.getElementById('code').textContent = code;
+        hljs.highlightAll();
+      })
+      .catch(() => document.getElementById('code').textContent = 'Code tidak ditemukan');
+  </script>
+</body>
+</html>
